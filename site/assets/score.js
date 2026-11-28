@@ -31,7 +31,7 @@ var CANNED = {
         source: 'Project Manager, general contractor'
       },
       {
-        seat: 'Precon',
+        seat: 'Project Executive',
         reaction: 'EXAMPLE: Can I put the current set in front of a sub tomorrow?',
         quote: 'EXAMPLE quote placeholder',
         source: null
