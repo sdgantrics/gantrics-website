@@ -51,6 +51,7 @@
         <button class="btn primary" id="paste-submit" type="submit">Get the field read</button>
       </div>
       <p class="hint" id="paste-hint">A headline or short paragraph is plenty.</p>
+      <p class="expired" id="paste-expired" hidden>That read expired. Paste it again.</p>
     </form>
   </div>
 </section>
@@ -236,6 +237,19 @@
     <div class="btn-row">
       <!-- TODO: Stephen has not sent the booking URL yet. -->
       <a class="btn primary" id="book" href="#BOOKING_LINK_TODO">Book 20 minutes with Stephen</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="state-busy" hidden>
+<section class="score-page">
+  <div class="container">
+    <p class="score-kicker">The Trailer · Field Read</p>
+    <h1>The trailer's full right now.</h1>
+    <p class="lede">Try again in a few minutes.</p>
+    <div class="btn-row">
+      <button class="btn primary" id="busy-retry" type="button">Try again</button>
     </div>
   </div>
 </section>
