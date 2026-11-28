@@ -1,49 +1,7 @@
 'use strict';
 
-/* EXAMPLE DATA ONLY. Invented. getTeaser and unlock return this for the
-   canned-data step. Never show it as a fallback once those functions
-   call the API. eye_roll is omitted from anything shareable. */
-var CANNED = {
-  teaser: {
-    id: 'fr_example123',
-    teaser: {
-      gut: "Sounds like every booth at the show. A super stops reading at 'seamless.'",
-      score: 2,
-      verdict: 'Heard it before',
-      eye_roll: 'seamlessly connects every stakeholder'
-    }
-  },
-  unlock: {
-    lands: 'The idea of fewer RFIs lands with the PM seat.',
-    eye_roll_note: "'Seamlessly' reads as marketing, not jobsite. Say what actually changes on Monday.",
-    rewrite: 'Cut RFI turnaround from days to hours, without adding another login for your field team.',
-    seats: [
-      {
-        seat: 'Super',
-        reaction: "EXAMPLE: I'd want to know who on my crew has to log in.",
-        quote: 'EXAMPLE quote placeholder',
-        source: 'Superintendent, mid-size GC'
-      },
-      {
-        seat: 'PM',
-        reaction: 'EXAMPLE: Show me which RFI this closes on Monday.',
-        quote: 'EXAMPLE quote placeholder',
-        source: 'Project Manager, general contractor'
-      },
-      {
-        seat: 'Project Executive',
-        reaction: 'EXAMPLE: Can I put the current set in front of a sub tomorrow?',
-        quote: 'EXAMPLE quote placeholder',
-        source: null
-      }
-    ],
-    share: {
-      verdict: 'Heard it before',
-      score: 2,
-      rewrite: 'Cut RFI turnaround from days to hours, without adding another login for your field team.'
-    }
-  }
-};
+const API_BASE = 'https://votf.constructionconversations.com';
+// Temporary fallback until that domain's certificate is issued: https://voice-of-the-field-production.up.railway.app
 
 var PASTE_HINT = 'A headline or short paragraph is plenty.';
 var MIN_COPY = 40;
@@ -56,33 +14,84 @@ var SHELL = 'M8.5 19.5c0-8 5.2-14 11.5-14s11.5 6 11.5 14H8.5z';
 var RIDGE = 'M17.2 3.2h5.6c.6 0 1 .4 1 1v3.8h-7.6V4.2c0-.6.4-1 1-1z';
 var BRIM = 'M2.2 19.2h35.6c1 0 1.8.8 1.8 1.8v3.2c0 1.3-1 2.3-2.3 2.3H2.7C1.4 26.5.4 25.5.4 24.2v-3.2c0-1 .8-1.8 1.8-1.8z';
 
+var STORE_KEY = 'gantrics.fieldRead';
 var readId = null;
 var teaser = null;
 var full = null;
 var sharePayload = null;
 var busy = false;
+var lastCopy = '';
+var lastFields = null;
+var lastAction = 'teaser';
 
-function clone(obj) {
-  return JSON.parse(JSON.stringify(obj));
+function postJson(path, body, timeoutMs) {
+  var controller = new AbortController();
+  var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+  return fetch(API_BASE + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'omit',
+    body: JSON.stringify(body),
+    signal: controller.signal
+  }).then(function (res) {
+    return res.text().then(function (text) {
+      var data = {};
+      if (text) {
+        try { data = JSON.parse(text); } catch (e) { data = {}; }
+      }
+      if (!res.ok) {
+        var err = new Error(data.error || 'request_failed');
+        err.error = data.error || 'request_failed';
+        err.status = res.status;
+        throw err;
+      }
+      return data;
+    });
+  }).then(function (data) {
+    clearTimeout(timer);
+    return data;
+  }, function (err) {
+    clearTimeout(timer);
+    if (err && err.error) throw err;
+    var code = err && err.name === 'AbortError' ? 'timeout' : 'network';
+    var wrapped = new Error(code);
+    wrapped.error = code;
+    throw wrapped;
+  });
 }
 
-/* Next step swaps these two bodies for
-   POST /api/public/field-read  and
-   POST /api/public/field-read/{id}/unlock.
-   Same arguments, same resolved shape. */
 function getTeaser(copy) {
-  void copy;
-  return Promise.resolve(clone(CANNED.teaser));
+  return postJson('/api/public/field-read', { copy: copy }, 8000);
 }
 
 function unlock(id, fields) {
-  void id;
-  void fields;
-  return Promise.resolve(clone(CANNED.unlock));
+  return postJson('/api/public/field-read/' + encodeURIComponent(id) + '/unlock', {
+    email: fields.email,
+    role: fields.role,
+    company: fields.company
+  }, 15000);
 }
 
-function track(name) {
-  if (typeof window.plausible === 'function') window.plausible(name);
+function track(name, props) {
+  if (typeof window.plausible !== 'function') return;
+  if (props) window.plausible(name, { props: props });
+  else window.plausible(name);
+}
+
+function persist(view) {
+  try {
+    if (!readId || !teaser) {
+      sessionStorage.removeItem(STORE_KEY);
+      return;
+    }
+    sessionStorage.setItem(STORE_KEY, JSON.stringify({ id: readId, teaser: teaser, view: view }));
+  } catch (err) {}
+}
+
+function clearStoredRead() {
+  readId = null;
+  teaser = null;
+  try { sessionStorage.removeItem(STORE_KEY); } catch (err) {}
 }
 
 function clampScore(score) {
@@ -102,7 +111,7 @@ function byId(id) {
 }
 
 function show(name) {
-  ['paste', 'teaser', 'gate', 'result'].forEach(function (key) {
+  ['paste', 'teaser', 'gate', 'result', 'busy'].forEach(function (key) {
     byId('state-' + key).hidden = key !== name;
   });
   window.scrollTo(0, 0);
@@ -157,6 +166,11 @@ function renderGate() {
   byId('gate-meta').textContent = scoreLine(teaser.score, 'free teaser already shown');
 }
 
+function seatLabel(seat) {
+  if (seat === 'PX') return 'Project Executive';
+  return seat || '';
+}
+
 function renderSeats(seats) {
   var wrap = byId('result-seats');
   wrap.textContent = '';
@@ -165,7 +179,7 @@ function renderSeats(seats) {
     card.className = 'seat';
     var tag = document.createElement('span');
     tag.className = 'tag';
-    tag.textContent = item.seat;
+    tag.textContent = seatLabel(item.seat);
     card.appendChild(tag);
     if (item.reaction) {
       var reaction = document.createElement('p');
@@ -418,11 +432,72 @@ function downloadCanvas(canvas) {
   }, 'image/png');
 }
 
-function failureMessage(err) {
-  var code = err && err.error;
-  if (code === 'too_short') return 'Paste at least 40 characters.';
-  if (code === 'too_long') return 'Keep it to 1,500 characters.';
-  return '';
+function finishRequest() {
+  busy = false;
+  byId('paste-submit').disabled = false;
+  byId('gate-submit').disabled = false;
+}
+
+function handleFailure(err) {
+  var code = (err && err.error) || 'network';
+  track('Score Error', { error: code });
+  if (code === 'too_short') {
+    byId('paste-expired').hidden = true;
+    setPasteHint('Paste at least 40 characters.', true);
+    show('paste');
+    return;
+  }
+  if (code === 'invalid_email') {
+    setFieldError('email', 'Enter a work email like you@company.com.');
+    show('gate');
+    return;
+  }
+  if (code === 'not_found_or_expired') {
+    clearStoredRead();
+    setPasteHint(PASTE_HINT, false);
+    byId('paste-expired').hidden = false;
+    show('paste');
+    return;
+  }
+  show('busy');
+}
+
+function runTeaser(copy) {
+  lastCopy = copy;
+  lastAction = 'teaser';
+  busy = true;
+  byId('paste-submit').disabled = true;
+  getTeaser(copy).then(function (data) {
+    readId = data.id;
+    teaser = data.teaser;
+    byId('paste-expired').hidden = true;
+    setPasteHint(PASTE_HINT, false);
+    renderTeaser();
+    track('Score Teaser');
+    show('teaser');
+    persist('teaser');
+    finishRequest();
+  }, function (err) {
+    finishRequest();
+    handleFailure(err);
+  });
+}
+
+function runUnlock(fields) {
+  lastFields = fields;
+  lastAction = 'unlock';
+  busy = true;
+  byId('gate-submit').disabled = true;
+  unlock(readId, fields).then(function (data) {
+    full = data;
+    renderResult();
+    track('Score Unlock');
+    show('result');
+    finishRequest();
+  }, function (err) {
+    finishRequest();
+    handleFailure(err);
+  });
 }
 
 byId('paste-form').addEventListener('submit', function (event) {
@@ -437,32 +512,19 @@ byId('paste-form').addEventListener('submit', function (event) {
     setPasteHint('Keep it to 1,500 characters.', true);
     return;
   }
-  busy = true;
-  byId('paste-submit').disabled = true;
-  getTeaser(copy).then(function (data) {
-    readId = data.id;
-    teaser = data.teaser;
-    setPasteHint(PASTE_HINT, false);
-    renderTeaser();
-    track('Score Paste');
-    track('Score Teaser');
-    show('teaser');
-  }).catch(function (err) {
-    var message = failureMessage(err);
-    setPasteHint(message || 'The field read did not come back. Try again.', true);
-  }).then(function () {
-    busy = false;
-    byId('paste-submit').disabled = false;
-  });
+  track('Score Paste');
+  runTeaser(copy);
 });
 
 byId('copy').addEventListener('input', function () {
+  byId('paste-expired').hidden = true;
   if (byId('paste-hint').classList.contains('is-error')) setPasteHint(PASTE_HINT, false);
 });
 
 byId('open-gate').addEventListener('click', function () {
   renderGate();
   show('gate');
+  persist('gate');
 });
 
 ['email', 'role', 'company'].forEach(function (name) {
@@ -492,20 +554,29 @@ byId('gate-form').addEventListener('submit', function (event) {
     ok = false;
   }
   if (!ok) return;
-  busy = true;
-  byId('gate-submit').disabled = true;
-  unlock(readId, { email: email, role: role, company: company }).then(function (data) {
-    full = data;
-    renderResult();
-    track('Score Unlock');
-    show('result');
-  }).catch(function () {
-    setFieldError('email', 'The full panel did not come back. Try again.');
-  }).then(function () {
-    busy = false;
-    byId('gate-submit').disabled = false;
-  });
+  runUnlock({ email: email, role: role, company: company });
 });
+
+byId('busy-retry').addEventListener('click', function () {
+  if (busy) return;
+  if (lastAction === 'unlock') runUnlock(lastFields);
+  else runTeaser(lastCopy);
+});
+
+(function restoreRead() {
+  var saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(STORE_KEY) || 'null'); } catch (err) { saved = null; }
+  if (!saved || !saved.id || !saved.teaser) return;
+  readId = saved.id;
+  teaser = saved.teaser;
+  if (saved.view === 'gate') {
+    renderGate();
+    show('gate');
+  } else {
+    renderTeaser();
+    show('teaser');
+  }
+})();
 
 byId('share-download').addEventListener('click', function () {
   var button = this;

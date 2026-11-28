@@ -67,6 +67,14 @@ button.btn:disabled { opacity: 0.55; cursor: default; }
   max-width: none;
 }
 .score-hero .hint.is-error { color: var(--yellow); }
+.score-hero .expired {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--yellow);
+  margin-top: 16px;
+  max-width: 46ch;
+}
 
 .score-page { padding: 56px 0 80px; border-bottom: 1px solid var(--rule); }
 .score-page h1, .score-page h2 { max-width: 22ch; }
