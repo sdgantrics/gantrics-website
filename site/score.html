@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field Read | Gantrics</title>
+<meta name="description" content="Paste a headline or a short paragraph. The Trailer gives you a gut reaction first, then a fuller read if you want it.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/score.css">
+<meta property="og:title" content="Field Read | Gantrics">
+<meta property="og:description" content="Paste a headline or a short paragraph. The Trailer gives you a gut reaction first, then a fuller read if you want it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gantrics.com/score">
+<meta property="og:image" content="https://gantrics.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container">
+    <a class="logo" href="/" aria-label="Gantrics home"><img src="assets/logo-white.svg" alt="Gantrics"></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links" onclick="var u=document.getElementById('nav-links');u.classList.toggle('open');this.setAttribute('aria-expanded',u.classList.contains('open'))">Menu</button>
+    <ul id="nav-links">
+      <li><a href="/#audience">Audience</a></li>
+      <li><a href="/#shows">Lineup</a></li>
+      <li><a href="/#sponsor">Sponsor</a></li>
+      <li><a href="/#about">About</a></li>
+      <li><a href="/advisory.html">Advisory</a></li>
+      <li><a class="cta" href="https://calendly.com/sdpoppe/30min">Book a call</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div id="state-paste">
+<section class="score-hero">
+  <div class="container">
+    <span class="eyebrow on-dark">The Trailer · Field Read</span>
+    <h1>What would the jobsite trailer think of your copy?</h1>
+    <p class="lede">Paste a headline or a short paragraph. The Trailer gives you a gut reaction first, then a fuller read if you want it.</p>
+    <form id="paste-form">
+      <label class="field-label" for="copy">Your copy</label>
+      <textarea id="copy" name="copy" rows="6" maxlength="1500" aria-describedby="paste-hint">Acme Field Cloud is an AI-powered platform that seamlessly unlocks a single source of truth for modern construction teams. Real-time, actionable insights. Built for the jobsite of tomorrow.</textarea>
+      <div class="btn-row">
+        <button class="btn primary" id="paste-submit" type="submit">Get the field read</button>
+      </div>
+      <p class="hint" id="paste-hint">A headline or short paragraph is plenty.</p>
+    </form>
+  </div>
+</section>
+</div>
+
+<div id="state-teaser" hidden>
+<section class="score-page">
+  <div class="container">
+    <p class="score-kicker">The Trailer · Free read</p>
+    <h1>Here’s the gut reaction.</h1>
+
+    <div class="hat-row">
+      <span class="hats" id="teaser-hats"></span>
+      <div>
+        <div class="verdict" id="teaser-verdict"></div>
+        <div class="score-meta" id="teaser-meta"></div>
+      </div>
+    </div>
+
+    <div class="gut">
+      <p class="score-kicker">Gut reaction</p>
+      <div class="statement">
+        <p id="teaser-gut"></p>
+      </div>
+    </div>
+
+    <div class="trailer-block" id="teaser-eye" hidden>
+      <h3>What gets an eye roll</h3>
+      <p></p>
+    </div>
+
+    <div class="locked">
+      <div class="locked-preview" aria-hidden="true">
+        <p class="score-kicker">The full field panel</p>
+        <div class="trailer-block">
+          <h3>What lands</h3>
+          <p>The phrase that lands is <span class="quote">“built for the jobsite.”</span> It would get a nod if the sentence didn't walk it back with “of tomorrow.”</p>
+        </div>
+        <div class="rewrite">
+          <h3>The rewrite</h3>
+          <p>One place the crew can check the current drawing, even when the trailer wifi is down.</p>
+        </div>
+        <div class="seats" style="margin-top:24px">
+          <div class="seat"><span class="tag">Super</span><p class="reaction">Ask me who updates it at 5am, and whether it still works in the basement.</p></div>
+          <div class="seat"><span class="tag">PM</span><p class="reaction">If it doesn't cut a double entry, it's just another dashboard next to the coffee pot.</p></div>
+          <div class="seat"><span class="tag">Precon</span><p class="reaction">Can I put the current set in front of a sub tomorrow, or is this another login?</p></div>
+        </div>
+      </div>
+      <div class="locked-veil">
+        <div class="locked-card">
+          <svg class="lock-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="9" fill="#212C4A"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="#212C4A" stroke-width="2"/></svg>
+          <h3>Unlock the full field panel</h3>
+          <p>See what lands, a field-style rewrite, and reactions from three seats.</p>
+          <ul class="locked-list">
+            <li>What lands in the trailer</li>
+            <li>A field-style rewrite</li>
+            <li>Super, PM, and Precon reactions</li>
+          </ul>
+          <button class="btn primary" id="open-gate" type="button">Unlock the full panel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="state-gate" hidden>
+<section class="score-page">
+  <div class="container">
+    <p class="score-kicker">The Trailer · Field Read</p>
+    <h1>Unlock the full field panel.</h1>
+    <div class="teaser-chip">
+      <span class="hats" id="gate-hats"></span>
+      <div>
+        <div class="verdict" id="gate-verdict"></div>
+        <div class="score-meta" id="gate-meta"></div>
+      </div>
+    </div>
+
+    <div class="gate-grid">
+      <form class="form" id="gate-form" novalidate>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" aria-describedby="email-error">
+          <p class="field-error" id="email-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="role">Role</label>
+          <input id="role" name="role" type="text" autocomplete="organization-title" placeholder="Marketing, product, founder…" aria-describedby="role-error">
+          <p class="field-error" id="role-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" autocomplete="organization" placeholder="Your company" aria-describedby="company-error">
+          <p class="field-error" id="company-error" hidden></p>
+        </div>
+        <div>
+          <button class="btn primary" id="gate-submit" type="submit">Unlock the full panel</button>
+        </div>
+      </form>
+
+      <div class="unlocks">
+        <h2>What you get</h2>
+        <p>The free teaser is the gut reaction, the score, and the eye-roll phrase. The full panel adds the part that actually helps you rewrite.</p>
+        <ul class="unlock-items">
+          <li><span class="num">01</span><span><strong>What lands.</strong> The one phrase that would get a nod, and why.</span></li>
+          <li><span class="num">02</span><span><strong>A field-style rewrite.</strong> That line, said the way a super would say it.</span></li>
+          <li><span class="num">03</span><span><strong>Three seats.</strong> Reactions from a Super, a PM, and Precon, each with one role-tagged quote.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="state-result" hidden>
+<section class="score-page">
+  <div class="container">
+    <p class="score-kicker">The Trailer · Full field panel</p>
+    <h1>The field read.</h1>
+
+    <div class="hat-row">
+      <span class="hats" id="result-hats"></span>
+      <div>
+        <div class="verdict" id="result-verdict"></div>
+        <div class="score-meta" id="result-meta"></div>
+      </div>
+    </div>
+
+    <div class="gut">
+      <p class="score-kicker">Gut reaction</p>
+      <div class="statement">
+        <p id="result-gut"></p>
+      </div>
+    </div>
+
+    <div class="trailer-block">
+      <h3>What lands</h3>
+      <p id="result-lands"></p>
+    </div>
+
+    <div class="trailer-block" id="result-eye" hidden>
+      <h3>What gets an eye roll</h3>
+      <p></p>
+    </div>
+
+    <div class="rewrite">
+      <h3>The rewrite</h3>
+      <p id="result-rewrite"></p>
+    </div>
+
+    <p class="score-kicker spaced">Reactions from three seats</p>
+    <div class="seats" id="result-seats"></div>
+
+    <div class="share-wrap">
+      <p class="score-kicker">Share card</p>
+      <div class="share-card" id="share-card" role="img">
+        <div class="share-brand">
+          <img src="assets/logo-white.svg" alt="">
+          <span>Field Read</span>
+        </div>
+        <span class="hats" id="share-hats"></span>
+        <div class="verdict" id="share-verdict"></div>
+        <div class="score-meta" id="share-meta"></div>
+        <p class="field-line" id="share-line"></p>
+        <p class="share-foot">gantrics.com/score</p>
+      </div>
+      <div class="share-actions">
+        <button class="btn" id="share-download" type="button">Download</button>
+        <button class="btn" id="share-copy" type="button">Copy</button>
+        <a class="btn" id="share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgantrics.com%2Fscore" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+
+    <p class="grounded">Grounded in real interviews from <a href="https://constructionconversations.com">Construction Conversations</a>.</p>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h2>Your customers already talk like this. Let’s get their story told.</h2>
+    <p>A 20-minute call about getting a real customer's story told, not another deck review.</p>
+    <div class="btn-row">
+      <!-- TODO: Stephen has not sent the booking URL yet. -->
+      <a class="btn primary" id="book" href="#BOOKING_LINK_TODO">Book 20 minutes with Stephen</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="container">
+    <div>
+      <img src="assets/logo-white.svg" alt="Gantrics">
+      <div>© 2026 Gantrics, LLC · A construction media company</div>
+    </div>
+    <ul>
+      <li><a href="https://constructionconversations.com">Construction Conversations</a></li>
+      <li><a href="https://constructionbriefs.substack.com">Construction Briefs</a></li>
+      <li><a href="https://www.youtube.com/@constructionconversations">YouTube</a></li>
+      <li><a href="https://www.linkedin.com/company/gantrics-consulting/">LinkedIn</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/advisory.html">Advisory</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="assets/score.js"></script>
+</body>
+</html>
