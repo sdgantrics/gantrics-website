@@ -10,4 +10,4 @@ Static replacement for the Lovable-hosted gantrics.com. Repositions Gantrics as 
 
 Preview: launch.json config `gantrics-website` (port 8742), or `python3 -m http.server 8742 --directory site`.
 
-Content rules (from the sponsor kit): no total follower counts, impressions stat only (15K/mo), no pricing, sponsor renewals anonymized, no em dashes, no buzzwords.
+Content rules (from the sponsor kit): no total follower counts, impressions stat only (15K/mo), Spotlight and Featured prices shown, Story Partner as a from price, sponsor renewals anonymized, no em dashes, no buzzwords.
