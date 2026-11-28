@@ -51,6 +51,7 @@ button.btn:disabled { opacity: 0.55; cursor: default; }
   line-height: 1.55;
   resize: vertical;
 }
+.score-hero textarea::placeholder { color: rgba(255,255,255,0.45); }
 .score-hero textarea:focus {
   outline: 2px solid var(--yellow);
   border-color: var(--yellow);
