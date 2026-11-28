@@ -166,6 +166,11 @@ function renderGate() {
   byId('gate-meta').textContent = scoreLine(teaser.score, 'free teaser already shown');
 }
 
+function seatLabel(seat) {
+  if (seat === 'PX') return 'Project Executive';
+  return seat || '';
+}
+
 function renderSeats(seats) {
   var wrap = byId('result-seats');
   wrap.textContent = '';
@@ -174,7 +179,7 @@ function renderSeats(seats) {
     card.className = 'seat';
     var tag = document.createElement('span');
     tag.className = 'tag';
-    tag.textContent = item.seat;
+    tag.textContent = seatLabel(item.seat);
     card.appendChild(tag);
     if (item.reaction) {
       var reaction = document.createElement('p');
